@@ -49,6 +49,7 @@ if GROQ_API_KEY:
 
 app = FastAPI(title="CRM Deals Consolidation", version="0.1.0")
 
+# Keep it simple for deployment/demo
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -94,6 +95,10 @@ def to_date(value):
         return date.fromisoformat(s)
     except Exception:
         return None
+
+
+def normalize_header(h: str) -> str:
+    return str(h or "").strip().lower().replace(" ", "_")
 
 
 def normalize_deal(row: dict, upload_timestamp: str, processing_status: str) -> dict:
@@ -194,15 +199,21 @@ def process_csv_path(path: Path) -> Dict[str, Any]:
 
     reader = csv.DictReader(io.StringIO(cleaned_text), delimiter=",")
 
-    headers = reader.fieldnames or []
+    raw_headers = reader.fieldnames or []
+    headers = [normalize_header(h) for h in raw_headers]
+
     preview = []
     rows_to_insert = []
     total_rows = 0
 
     for i, row in enumerate(reader):
+        # normalize row keys to match our schema
+        row = {normalize_header(k): v for k, v in (row or {}).items()}
+
         total_rows += 1
         deal = normalize_deal(row, upload_timestamp, processing_status)
         rows_to_insert.append(deal)
+
         if i < 5:
             preview.append(deal)
 
@@ -241,7 +252,8 @@ def process_xlsx_path(path: Path) -> Dict[str, Any]:
             "preview": [],
         }
 
-    headers = [str(h).strip() if h is not None else "" for h in rows[0]]
+    raw_headers = [str(h).strip() if h is not None else "" for h in rows[0]]
+    headers = [normalize_header(h) for h in raw_headers]
 
     preview = []
     rows_to_insert = []
@@ -254,12 +266,14 @@ def process_xlsx_path(path: Path) -> Dict[str, Any]:
                 continue
             row_dict[h] = values[idx] if idx < len(values) else None
 
+        # skip empty rows
         if all((v is None or str(v).strip() == "") for v in row_dict.values()):
             continue
 
         total_rows += 1
         deal = normalize_deal(row_dict, upload_timestamp, processing_status)
         rows_to_insert.append(deal)
+
         if total_rows <= 5:
             preview.append(deal)
 
@@ -462,7 +476,6 @@ async def upload_zip(file: UploadFile = File(...)):
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Could not extract zip: {e}")
 
-    # only show supported files
     files = []
     for p in extracted_paths:
         if is_supported(p.name):
@@ -475,7 +488,6 @@ async def upload_zip(file: UploadFile = File(...)):
                 }
             )
 
-    # stable ordering for UI
     files.sort(key=lambda x: x["name"])
 
     return {
