@@ -51,10 +51,11 @@ app = FastAPI(title="CRM Deals Consolidation", version="0.1.0")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins = [
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
-    "https://crm-deals-consolidator.vercel.app",],
+    allow_origins=[
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "https://crm-deals-consolidator-mpww7yy62-naveenrajieapens-projects.vercel.app",
+    ],
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
