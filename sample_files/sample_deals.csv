@@ -1,0 +1,7 @@
+"deal_id,client_name,deal_value,stage,closing_probability,owner,expected_close_date"
+"D001,Acme Corp,50000,Proposal,70,John,2026-03-15"
+"D002,Globex Inc,120000,Negotiation,60,Sarah,2026-04-01"
+"D003,Innotech,75000,Qualification,40,David,2026-05-10"
+"D004,BlueWave,200000,Closed Won,100,Emma,2026-02-28"
+"D005,NextGen,90000,Proposal,65,Liam,2026-03-30"
+"D006,Vertex,30000,Discovery,30,Olivia,2026-06-12"
