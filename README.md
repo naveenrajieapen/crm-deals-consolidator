@@ -1,6 +1,7 @@
 CRM Deals Consolidation
 
 Full Stack AI-Powered Document Consolidation System
+
 🎯 Objective
 
 This project is a Full Stack AI-powered document consolidation system built for the CRM Deals Consolidation domain.
